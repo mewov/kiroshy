@@ -8,7 +8,7 @@
 
 ## What is Kiroshy?
 
-Kiroshy is a Rust distributed storage in Rust...
+Kiroshy is a distributed storage in Rust...
 
 ## License
 
