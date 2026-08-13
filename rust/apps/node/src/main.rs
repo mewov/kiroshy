@@ -26,4 +26,9 @@ async fn main() {
         std::process::exit(1);
     });
     tracing::info!("quic configuration");
+
+    match quic::listen(quic_config, config.addr, config.write_timeout, config.read_timeout).await {
+        Ok(_) => tracing::info!("quic shutdown"),
+        Err(err) => tracing::error!(%err, "quic listener")
+    }
 }
