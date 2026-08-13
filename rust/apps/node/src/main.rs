@@ -1,4 +1,5 @@
 mod config;
+mod quic;
 
 #[tokio::main]
 async fn main() {
@@ -19,4 +20,15 @@ async fn main() {
     }
 
     tracing::info!("configuration");
+
+    rustls::crypto::ring::default_provider().install_default().unwrap_or_else(|err| {
+        tracing::error!(?err, "rustls provider");
+        std::process::exit(1);
+    });
+
+   let quic_config = quic::config::initial(config.pem_path, config.key_path).unwrap_or_else(|err| {
+        tracing::error!(%err, "quic configuration");
+        std::process::exit(1);
+    });
+    tracing::info!("quic configuration");
 }
