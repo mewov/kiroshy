@@ -1,3 +1,3 @@
 [workspace]
-members = ["apps/client", "apps/node"]
+members = ["apps/client", "apps/node", "proto"]
 resolver = "2"
