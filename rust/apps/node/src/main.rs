@@ -1,4 +1,5 @@
 mod config;
+mod identity;
 mod quic;
 
 #[tokio::main]
@@ -27,7 +28,12 @@ async fn main() {
     });
     tracing::info!("quic configuration");
 
-    match quic::listen(quic_config, config.addr, config.write_timeout, config.read_timeout).await {
+    let signing = identity::initial(&config.identity_path).unwrap_or_else(|err| {
+        tracing::error!(%err, "identity configuration");
+        std::process::exit(1);
+    });
+
+    match quic::listen(quic_config, config.addr, signing, config.write_timeout, config.read_timeout).await {
         Ok(_) => tracing::info!("quic shutdown"),
         Err(err) => tracing::error!(%err, "quic listener")
     }

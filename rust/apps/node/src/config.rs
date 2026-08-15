@@ -8,6 +8,7 @@ pub struct Config {
     pub read_timeout: Duration,
     pub pem_path: PathBuf,
     pub key_path: PathBuf,
+    pub identity_path: PathBuf
 }
 
 impl Config {
@@ -24,7 +25,8 @@ impl Config {
 
         let pem_path: PathBuf = env::var("NODE_PEM_PATH").context("failed find $NODE_PEM_PATH")?.parse().context("failed convert $NODE_PEM_PATH to PathBuf")?;
         let key_path: PathBuf = env::var("NODE_KEY_PATH").context("failed find $NODE_KEY_PATH")?.parse().context("failed convert $NODE_KEY_PATH to PathBuf")?;
+        let identity_path: PathBuf = env::var("NODE_IDENTITY_PATH").context("failed find $NODE_IDENTITY_PATH")?.parse().context("failed convert $NODE_IDENTITY_PATH to PathBuf")?;
 
-        Ok(Self { addr, write_timeout, read_timeout, pem_path, key_path })
+        Ok(Self { addr, write_timeout, read_timeout, pem_path, key_path, identity_path })
     }
 }
