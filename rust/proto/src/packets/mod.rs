@@ -1,5 +1,4 @@
 use std::time::Duration;
-
 use anyhow::{Context, Result, bail};
 use tokio::{io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt}, time::timeout};
 use crate::packets::types::{IDENTITY_LENGTH, MAX_PAYLOAD_LENGTH, Packet, PacketKind};

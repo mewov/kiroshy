@@ -1,9 +1,8 @@
 use std::time::Duration;
-
 use anyhow::Result;
 use ed25519_dalek::{SIGNATURE_LENGTH, Signature, Verifier, VerifyingKey};
 use tokio::{io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt}, time::timeout};
-use crate::handshake::{CHALLENGE_SIZE, VERSION_SIZE, generate_challenge};
+use crate::handshake::{CHALLENGE_SIZE, HS_SIGNATURE, VERSION_SIZE, generate_challenge};
 
 pub async fn initial<W: AsyncWrite + Unpin>(w: &mut W, write_timeout: Duration, version: &(u8, u8, u8)) -> Result<VerifyStep> {
     let mut buffer = [0u8; VERSION_SIZE + CHALLENGE_SIZE];
@@ -23,14 +22,19 @@ pub struct VerifyStep {
 }
 
 impl VerifyStep {
-    pub async fn verify<R: AsyncRead + Unpin>(self, r: &mut R, read_timeout: Duration, verifying: &VerifyingKey) -> Result<(u8, u8, u8)> {
+    pub async fn verify<R: AsyncRead + Unpin>(self, r: &mut R, peer: &[u8], read_timeout: Duration, verifying: &VerifyingKey) -> Result<(u8, u8, u8)> {
         let mut buffer = [0u8; VERSION_SIZE + SIGNATURE_LENGTH];
         timeout(read_timeout, r.read_exact(&mut buffer)).await??;
 
         let version = (buffer[0], buffer[1], buffer[2]);
         let signature = Signature::from_bytes(buffer[VERSION_SIZE..VERSION_SIZE+SIGNATURE_LENGTH].try_into()?);
 
-        verifying.verify(&self.challenge, &signature)?;
+        let mut message: Vec<u8> = Vec::with_capacity(HS_SIGNATURE.len() + peer.len() + self.challenge.len());
+        message.extend_from_slice(&HS_SIGNATURE);
+        message.extend_from_slice(&peer);
+        message.extend_from_slice(&self.challenge);
+
+        verifying.verify(&message, &signature)?;
         Ok(version)
     }
 }

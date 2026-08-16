@@ -1,9 +1,10 @@
 use std::{net::SocketAddr, sync::Arc, time::Duration};
-use anyhow::Result;
+use anyhow::{Context, Result};
 use ed25519_dalek::SigningKey;
 use quinn::{Connection, ServerConfig};
 
 pub mod config;
+mod peer;
 
 const VERSION: (u8, u8, u8) = (0, 1, 0);
 
@@ -18,9 +19,8 @@ pub async fn listen(config: ServerConfig, addr: SocketAddr, signing: SigningKey,
         tokio::spawn(async move {
             match incoming.await {
                 Ok(conn) => {
-                    let addr = conn.remote_address();
-                    if let Err(err) = crate::quic::connection(conn, write_timeout, read_timeout, &signing, addr).await {
-                        tracing::error!(%err, %addr, "connection")
+                    if let Err(err) = crate::quic::connection(conn, write_timeout, read_timeout, &signing).await {
+                        tracing::error!(%err, "connection")
                     }
                 },
                 Err(err) => tracing::error!(%err, "accept connection"), 
@@ -31,14 +31,9 @@ pub async fn listen(config: ServerConfig, addr: SocketAddr, signing: SigningKey,
     Ok(())
 }
 
-#[tracing::instrument(skip_all, fields(%addr))]
-pub async fn connection(connection: Connection, write_timeout: Duration, read_timeout: Duration, signing: &SigningKey, addr: SocketAddr) -> Result<()> {
-    tracing::info!("accept connection");
-
-    tracing::info!("accept bi");
+#[tracing::instrument(skip_all)]
+pub async fn connection(connection: Connection, write_timeout: Duration, read_timeout: Duration, signing: &SigningKey) -> Result<()> {
     let (mut w, mut r) = connection.accept_bi().await?;
-
-    tracing::info!("initial handshake");
     let (step, version) = proto::handshake::frame_node::initial(&mut r, read_timeout).await?;
 
     anyhow::ensure!(
@@ -46,10 +41,8 @@ pub async fn connection(connection: Connection, write_timeout: Duration, read_ti
         "version mismatch"
     );
 
-    tracing::info!("confirm identity handshake");
-    step.verify(&mut w, write_timeout, signing, VERSION).await?;
-
-    tracing::info!("success handshake");
+    let peer = peer::get_peer_cert_bytes(&connection).context("failed get peer identity")?;
+    step.verify(&mut w, &peer, write_timeout, signing, VERSION).await?;
 
     // ...
     Ok(())
