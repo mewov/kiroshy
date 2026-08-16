@@ -1,7 +1,10 @@
-use std::time::Duration;
-use anyhow::{Context, Result, bail};
-use tokio::{io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt}, time::timeout};
 use crate::packets::types::{IDENTITY_LENGTH, MAX_PAYLOAD_LENGTH, Packet, PacketKind};
+use anyhow::{Context, Result, bail};
+use std::time::Duration;
+use tokio::{
+    io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt},
+    time::timeout,
+};
 
 pub mod types;
 
@@ -9,19 +12,24 @@ pub struct Frame<W: AsyncWrite + Unpin, R: AsyncRead + Unpin> {
     w: W,
     r: R,
     write_timeout: Duration,
-    read_timeout: Duration
+    read_timeout: Duration,
 }
 
-impl <W: AsyncWrite + Unpin, R: AsyncRead + Unpin> Frame<W, R> {
+impl<W: AsyncWrite + Unpin, R: AsyncRead + Unpin> Frame<W, R> {
     pub fn new(w: W, r: R, write_timeout: Duration, read_timeout: Duration) -> Self {
-        Self { w, r, write_timeout, read_timeout }
+        Self {
+            w,
+            r,
+            write_timeout,
+            read_timeout,
+        }
     }
 
     pub async fn send(&mut self, p: &Packet) -> Result<()> {
         let length = p.payload.len();
         if length > MAX_PAYLOAD_LENGTH {
             bail!("payload is too large");
-        } 
+        }
 
         let payload_len_u32 = u32::try_from(length)?;
 
@@ -41,8 +49,8 @@ impl <W: AsyncWrite + Unpin, R: AsyncRead + Unpin> Frame<W, R> {
         timeout(self.read_timeout, self.r.read_exact(&mut header)).await??;
 
         let kind = PacketKind::try_from(header[0]).context("invalid packet kind")?;
-        let identity: [u8; 32] = header[1..1+IDENTITY_LENGTH].try_into()?;
-        let length = u32::from_be_bytes(header[1+IDENTITY_LENGTH..1+IDENTITY_LENGTH+4].try_into()?) as usize;
+        let identity: [u8; 32] = header[1..1 + IDENTITY_LENGTH].try_into()?;
+        let length = u32::from_be_bytes(header[1 + IDENTITY_LENGTH..1 + IDENTITY_LENGTH + 4].try_into()?) as usize;
 
         if length > MAX_PAYLOAD_LENGTH {
             bail!("payload is too large");
@@ -50,7 +58,7 @@ impl <W: AsyncWrite + Unpin, R: AsyncRead + Unpin> Frame<W, R> {
 
         let mut payload = vec![0u8; length];
         timeout(self.read_timeout, self.r.read_exact(&mut payload)).await??;
-        
+
         Ok(Packet { kind, identity, payload })
     }
 }

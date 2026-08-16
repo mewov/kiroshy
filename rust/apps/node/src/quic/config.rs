@@ -1,7 +1,7 @@
-use std::{fs::File, io::BufReader, path::PathBuf, sync::Arc};
 use anyhow::{Context, Result};
 use quinn::ServerConfig;
 use rcgen::generate_simple_self_signed;
+use std::{fs::File, io::BufReader, path::PathBuf, sync::Arc};
 
 pub fn initial(pem_path: PathBuf, key_path: PathBuf) -> Result<ServerConfig> {
     if !pem_path.exists() || !key_path.exists() {
@@ -35,8 +35,7 @@ fn load_server_config(pem_path: &PathBuf, key_path: &PathBuf) -> Result<ServerCo
         .context("invalid cert or key for tls")?;
 
     tls_config.alpn_protocols = vec![b"node-v1".to_vec()];
-    let quic_crypto = quinn::crypto::rustls::QuicServerConfig::try_from(tls_config)
-        .context("failed to convert tls config to quic config")?;
+    let quic_crypto = quinn::crypto::rustls::QuicServerConfig::try_from(tls_config).context("failed to convert tls config to quic config")?;
 
     Ok(ServerConfig::with_crypto(Arc::new(quic_crypto)))
 }

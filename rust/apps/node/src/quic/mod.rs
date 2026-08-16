@@ -1,7 +1,7 @@
-use std::{net::SocketAddr, sync::Arc, time::Duration};
 use anyhow::{Context, Result};
 use ed25519_dalek::SigningKey;
 use quinn::{Connection, ServerConfig};
+use std::{net::SocketAddr, sync::Arc, time::Duration};
 
 pub mod config;
 mod peer;
@@ -22,8 +22,8 @@ pub async fn listen(config: ServerConfig, addr: SocketAddr, signing: SigningKey,
                     if let Err(err) = crate::quic::connection(conn, write_timeout, read_timeout, &signing).await {
                         tracing::error!(%err, "connection")
                     }
-                },
-                Err(err) => tracing::error!(%err, "accept connection"), 
+                }
+                Err(err) => tracing::error!(%err, "accept connection"),
             };
         });
     }
@@ -36,10 +36,7 @@ pub async fn connection(connection: Connection, write_timeout: Duration, read_ti
     let (mut w, mut r) = connection.accept_bi().await?;
     let (step, version) = proto::handshake::frame_node::initial(&mut r, read_timeout).await?;
 
-    anyhow::ensure!(
-        version.0 == VERSION.0,
-        "version mismatch"
-    );
+    anyhow::ensure!(version.0 == VERSION.0, "version mismatch");
 
     let peer = peer::get_peer_cert_bytes(&connection).context("failed get peer identity")?;
     step.verify(&mut w, &peer, write_timeout, signing, VERSION).await?;

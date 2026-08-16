@@ -5,12 +5,12 @@ pub const IDENTITY_LENGTH: usize = 32;
 pub struct Packet {
     pub kind: PacketKind,
     pub identity: [u8; IDENTITY_LENGTH],
-    pub payload: Vec<u8>
+    pub payload: Vec<u8>,
 }
 
 #[repr(u8)]
 #[derive(Clone, Copy, Debug, PartialEq, num_enum::TryFromPrimitive)]
 pub enum PacketKind {
     Ping = 1,
-    Pong = 2
+    Pong = 2,
 }

@@ -1,4 +1,4 @@
-use rand::{RngExt};
+use rand::RngExt;
 
 pub mod frame_client;
 pub mod frame_node;
