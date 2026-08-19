@@ -9,20 +9,32 @@ pub struct Packet {
 }
 
 impl Packet {
-    pub fn new(kind: PacketKind, payload: Vec<u8>,) -> Self {
-        Self { kind, identity: [0u8; IDENTITY_LENGTH], payload }
+    pub fn new(kind: PacketKind, payload: Vec<u8>) -> Self {
+        Self {
+            kind,
+            identity: [0u8; IDENTITY_LENGTH],
+            payload,
+        }
     }
 
-    pub fn new_with_identity(kind: PacketKind, identity: [u8; IDENTITY_LENGTH], payload: Vec<u8>,) -> Self {
+    pub fn new_with_identity(kind: PacketKind, identity: [u8; IDENTITY_LENGTH], payload: Vec<u8>) -> Self {
         Self { kind, identity, payload }
     }
 
     pub fn new_empty(kind: PacketKind) -> Self {
-        Self { kind, identity: [0u8; IDENTITY_LENGTH], payload: Vec::new() }
+        Self {
+            kind,
+            identity: [0u8; IDENTITY_LENGTH],
+            payload: Vec::new(),
+        }
     }
-    
+
     pub fn new_empty_with_identity(kind: PacketKind, identity: [u8; IDENTITY_LENGTH]) -> Self {
-        Self { kind, identity, payload: Vec::new() }
+        Self {
+            kind,
+            identity,
+            payload: Vec::new(),
+        }
     }
 }
 
