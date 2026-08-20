@@ -1,4 +1,5 @@
 target/
+dev/
 cert/
 Cargo.lock
 .env
