@@ -43,4 +43,10 @@ impl Packet {
 pub enum PacketKind {
     Ping = 1,
     Pong = 2,
+    Ok = 3,
+    Err = 4,
+
+    GetSpace = 6,
+    WriteBlock = 7,
+    ReadBlock = 8,
 }
