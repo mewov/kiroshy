@@ -4,8 +4,9 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-tokio = "1"
-rand = "0.10"
 anyhow = "1.0"
 num_enum = "0.7"
+tokio = { version="1", features=["full"] }
+
+rand = "0.10"
 ed25519-dalek = "2"
