@@ -1,8 +1,9 @@
 use serde::{Deserialize, Serialize};
 
+pub mod creator;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Manifest {
-    pub filename: String,
     pub password_hash: [u8; 32],
     pub blocks_length: u32,
     pub payload: Vec<Block>,
