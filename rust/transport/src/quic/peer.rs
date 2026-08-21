@@ -1,5 +1,5 @@
 use quinn::Connection;
-use rustls::pki_types::CertificateDer;
+use quinn::rustls::pki_types::CertificateDer;
 
 pub fn get_peer_cert_bytes(connection: &Connection) -> Option<Vec<u8>> {
     let identity = connection.peer_identity()?;
