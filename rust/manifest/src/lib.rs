@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 pub mod creator;
+pub mod parser;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Manifest {
