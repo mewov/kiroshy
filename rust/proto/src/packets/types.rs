@@ -1,3 +1,5 @@
+use bytes::Bytes;
+
 pub const MAX_PAYLOAD_LENGTH: usize = 1_048_576;
 pub const IDENTITY_LENGTH: usize = 32;
 
@@ -5,11 +7,11 @@ pub const IDENTITY_LENGTH: usize = 32;
 pub struct Packet {
     pub kind: PacketKind,
     pub identity: [u8; IDENTITY_LENGTH],
-    pub payload: Vec<u8>,
+    pub payload: Bytes,
 }
 
 impl Packet {
-    pub fn new(kind: PacketKind, payload: Vec<u8>) -> Self {
+    pub fn new(kind: PacketKind, payload: Bytes) -> Self {
         Self {
             kind,
             identity: [0u8; IDENTITY_LENGTH],
@@ -17,7 +19,7 @@ impl Packet {
         }
     }
 
-    pub fn new_with_identity(kind: PacketKind, identity: [u8; IDENTITY_LENGTH], payload: Vec<u8>) -> Self {
+    pub fn new_with_identity(kind: PacketKind, identity: [u8; IDENTITY_LENGTH], payload: Bytes) -> Self {
         Self { kind, identity, payload }
     }
 
@@ -25,7 +27,7 @@ impl Packet {
         Self {
             kind,
             identity: [0u8; IDENTITY_LENGTH],
-            payload: Vec::new(),
+            payload: Bytes::new(),
         }
     }
 
@@ -33,7 +35,7 @@ impl Packet {
         Self {
             kind,
             identity,
-            payload: Vec::new(),
+            payload: Bytes::new(),
         }
     }
 }
