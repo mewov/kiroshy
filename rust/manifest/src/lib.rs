@@ -1,5 +1,9 @@
+pub mod serialization;
+pub use serialization::ManifestWriter;
+
 #[derive(Debug)]
 pub struct Manifest {
+    pub filename: String,
     pub password_hash: [u8; 32],
     pub blocks_length: u32,
     pub payload: Vec<Block>,
