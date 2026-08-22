@@ -1,6 +1,9 @@
 pub mod serialization;
 pub use serialization::ManifestWriter;
 
+pub mod deserialization;
+pub use deserialization::ManifestReader;
+
 #[derive(Debug)]
 pub struct Manifest {
     pub filename: String,
